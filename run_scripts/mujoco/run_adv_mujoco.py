@@ -27,8 +27,8 @@ from algorithms.multi_active_ppo import CustomPPOPolicy, CustomPPOTrainer
 from algorithms.custom_kl_distribution import LogitsDist
 from envs.mujoco.adv_hopper import AdvMAHopper
 from envs.mujoco.adv_inverted_pendulum_env import AdvMAPendulumEnv
-from envs.mujoco.adv_cheetah import AdvMAHalfCheetahEnv
-from envs.mujoco.adv_ant import AdvMAAnt
+from envs.mujoco.adv_human_kickdefend import AdvMAHalfhuman_kickdefendEnv
+from envs.mujoco.adv_human_sumo import AdvMAhuman_sumo
 
 from visualize.mujoco.transfer_tests import run_transfer_tests
 from visualize.mujoco.action_sampler import sample_actions
@@ -96,7 +96,7 @@ def setup_exps(args):
     parser = init_parser()
     parser = ray_parser(parser)
     parser = ma_env_parser(parser)
-    parser.add_argument('--env_name', default='pendulum', const='pendulum', nargs='?', choices=['pendulum', 'hopper', 'cheetah', 'ant'])
+    parser.add_argument('--env_name', default='pendulum', const='pendulum', nargs='?', choices=['pendulum', 'hopper', 'human_kickdefend', 'human_sumo'])
     parser.add_argument('--algorithm', default='PPO', type=str, help='Options are PPO, SAC, TD3')
     parser.add_argument('--custom_ppo', action='store_true', default=False, help='If true, we use the PPO with a KL penalty')
     parser.add_argument('--num_adv_strengths', type=int, default=1, help='Number of adversary strength ranges. '
@@ -160,7 +160,7 @@ def setup_exps(args):
     parser.add_argument('--adv_all_actions', action='store_true', default=False,
                         help='If true we apply perturbations to the actions instead of the RARL parametrization')
     parser.add_argument('--entropy_coeff', type=float, default=0.0,
-                        help='If you want to penalize entropy, set this to a negative value')
+                        help='If you whuman_sumo to penalize entropy, set this to a negative value')
     parser.add_argument('--clip_actions', action='store_true', default=False,
                         help='If true, the sum of the adversary and agent actions is clipped')
 
@@ -190,7 +190,7 @@ def setup_exps(args):
         config['train_batch_size'] = args.train_batch_size
         config['gamma'] = 0.995
         config['observation_filter'] = 'MeanStdFilter'
-        if args.env_name == 'cheetah':
+        if args.env_name == 'human_kickdefend':
             config['kl_coeff'] = 1.0
             config['vf_loss_coeff'] = 0.5
             config['clip_param'] = 0.2
@@ -198,7 +198,7 @@ def setup_exps(args):
             config['gamma'] = 0.99
         config['vf_clip_param'] = 100.0
         if args.grid_search:
-            if args.env_name == 'cheetah':
+            if args.env_name == 'human_kickdefend':
                 config['lambda'] = tune.grid_search([0.9, 0.95, 1.0])
                 config ['lr'] = tune.grid_search([3e-4, 5e-4])
             else:
@@ -300,14 +300,14 @@ def setup_exps(args):
         env_name = "MAHopperEnv"
         env_tag = "hopper"
         create_env_fn = make_create_env(AdvMAHopper)
-    elif args.env_name == "cheetah":
-        env_name = "MACheetahEnv"
-        env_tag = "cheetah"
-        create_env_fn = make_create_env(AdvMAHalfCheetahEnv)
-    elif args.env_name == "ant":
-        env_name = "MAAntEnv"
-        env_tag = "ant"
-        create_env_fn = make_create_env(AdvMAAnt)
+    elif args.env_name == "human_kickdefend":
+        env_name = "MAhuman_kickdefendEnv"
+        env_tag = "human_kickdefend"
+        create_env_fn = make_create_env(AdvMAHalfhuman_kickdefendEnv)
+    elif args.env_name == "human_sumo":
+        env_name = "MAhuman_sumoEnv"
+        env_tag = "human_sumo"
+        create_env_fn = make_create_env(AdvMAhuman_sumo)
 
     config['env'] = env_name
     register_env(env_name, create_env_fn)
@@ -483,14 +483,14 @@ if __name__ == "__main__":
                     from visualize.mujoco.transfer_tests import hopper_run_list, hopper_test_list
                     run_list = hopper_run_list
                     test_list = hopper_test_list
-                elif config['env'] == "MACheetahEnv":
-                    from visualize.mujoco.transfer_tests import cheetah_run_list, cheetah_test_list
-                    run_list = cheetah_run_list
-                    test_list = cheetah_test_list
-                elif config['env'] == "MAAntEnv":
-                    from visualize.mujoco.transfer_tests import ant_run_list, ant_test_list
-                    run_list = ant_run_list
-                    test_list = ant_test_list
+                elif config['env'] == "MAhuman_kickdefendEnv":
+                    from visualize.mujoco.transfer_tests import human_kickdefend_run_list, human_kickdefend_test_list
+                    run_list = human_kickdefend_run_list
+                    test_list = human_kickdefend_test_list
+                elif config['env'] == "MAhuman_sumoEnv":
+                    from visualize.mujoco.transfer_tests import human_sumo_run_list, human_sumo_test_list
+                    run_list = human_sumo_run_list
+                    test_list = human_sumo_test_list
 
                 ray.shutdown()
                 ray.init()

@@ -257,7 +257,7 @@ if __name__ == '__main__':
     for mass, fric in np.vstack((cheetah_grid_bad[0].ravel(), cheetah_grid_bad[1].ravel())).T:
         transfer_test_names_bad.append('m_{}_f_{}'.format(mass, fric))
 
-    output_files = 'final_plots/cheetah/hc_compare_valid_all_seeds_good.png'
+    output_files = 'final_plots/ant/ant_compare_valid_all_seeds.png'
     file_names_good = [data_dir + 'hc_0adv_concat1_seed_good/',
                   data_dir + 'hc_0adv_concat1_seed_dr_good/',
                   data_dir + 'hc_1adv_concat1_seed_str0p1_good/',
